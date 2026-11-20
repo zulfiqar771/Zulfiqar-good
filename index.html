@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>سؤال وجواب</title>
+  <style>
+    :root {
+      --bg: #030407;
+      --surface: #0e1016;
+      --pill: #191c24;
+      --user-bubble: #1d2433;
+      --text: #f1f3f6;
+      --muted: #9aa3b2;
+      --primary: #254d9e;
+      --primary-text: #f5f8ff;
+      --accent: #8ab4f8;
+      --border: #2a2f3d;
+      --error-bg: #35161d;
+      --error-text: #fee2e2;
+      --code-bg: #0b0e17;
+      --code-head: #151a28;
+      --gold: #f59e0b;
+      --green: #22c55e;
+    }
+
+    body.light {
+      --bg: #f8fafd;
+      --surface: #ffffff;
+      --pill: #ffffff;
+      --user-bubble: #e9eef7;
+      --text: #111827;
+      --muted: #5c6678;
+      --primary: #1d4ed8;
+      --primary-text: #ffffff;
+      --accent: #2563eb;
+      --border: #dce2ee;
+      --error-bg: #fef2f2;
+      --error-text: #7f1d1d;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .app {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      background:
+        radial-gradient(circle at 50% 108%, rgba(26, 58, 143, 0.45), transparent 60%),
+        linear-gradient(to bottom, transparent 55%, rgba(14, 33, 89, 0.35) 100%),
+        var(--bg);
+    }
+
+    body.light .app {
+      background:
+        linear-gradient(to bottom, transparent 60%, rgba(66, 133, 244, 0.10) 100%),
+        var(--bg);
+    }
+
+    /* Announcement Banner */
+    .announcement-bar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(37, 77, 158, 0.25);
+      border-bottom: 1px solid rgba(138, 180, 248, 0.25);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .announcement-bar.show {
+      display: flex;
+    }
+
+    /* Top Header */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      z-index: 10;
+    }
+
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--text);
+    }
+
+    .owner-badge {
+      display: none;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .owner-badge.show {
+      display: inline-block;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    .icon-btn:hover {
+      background: rgba(138, 180, 248, 0.12);
+    }
+
+    /* Main Chat Area */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .chat-inner {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+    }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .star-glyph {
+      width: 60px;
+      height: 60px;
+      animation: pulse 2.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(0.95); }
+      to { transform: scale(1.07); }
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    /* Bubbles */
+    .msg-user-row {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .msg-user {
+      max-width: 82%;
+      background: var(--user-bubble);
+      color: var(--text);
+      padding: 11px 16px;
+      border-radius: 8px 20px 20px 20px;
+      line-height: 1.65;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg-user img {
+      display: block;
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      object-fit: cover;
+      cursor: zoom-in;
+    }
+
+    .msg-ai {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 4px;
+    }
+
+    .msg-ai-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .msg-ai-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .msg-ai-body {
+      font-size: 15.5px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .copy-mini {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .copy-mini:hover {
+      background: rgba(138, 180, 248, 0.12);
+      color: var(--text);
+    }
+
+    .code-card {
+      direction: ltr;
+      text-align: left;
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .code-head {
+      background: var(--code-head);
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--accent);
+      font-size: 12px;
+      font-family: monospace;
+      font-weight: 700;
+    }
+
+    .code-head button {
+      background: rgba(255, 255, 255, 0.06);
+      border: 0;
+      color: #e6edf7;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .code-card pre {
+      margin: 0;
+      padding: 12px;
+      overflow-x: auto;
+      color: #e6edf7;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px 4px;
+    }
+
+    .error-box {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Input Dock */
+    .dock-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 12px 10px;
+    }
+
+    .attach-preview {
+      width: 100%;
+      max-width: 760px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 16px;
+      background: var(--pill);
+      border: 1px solid var(--border);
+    }
+
+    .attach-preview.show {
+      display: flex;
+    }
+
+    .attach-preview img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .input-pill {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      background: var(--pill);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 6px 8px;
+    }
+
+    .input-pill textarea {
+      flex: 1;
+      border: 0;
+      outline: none;
+      resize: none;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.5;
+      max-height: 120px;
+      padding: 8px 6px;
+    }
+
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--primary);
+      color: var(--primary-text);
+      font-size: 18px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    /* Built-in Arabic Keyboard (Matched to ArabicKeyboardPanel.kt) */
+    .kbd {
+      width: 100%;
+      max-width: 760px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      padding: 8px 4px;
+      margin-top: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      direction: ltr;
+      user-select: none;
+    }
+
+    .kbd.show {
+      display: flex;
+    }
+
+    .kbd-row {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .kbd-key {
+      flex: 1;
+      height: 43px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--pill);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .kbd-key:active {
+      background: var(--primary);
+      color: var(--primary-text);
+    }
+
+    .kbd-key.action {
+      flex: 1.35;
+      background: rgba(138, 180, 248, 0.14);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kbd-key.action.active {
+      background: var(--primary);
+      color: var(--primary-text);
+    }
+
+    .kbd-key.sub {
+      flex: 0.9;
+    }
+
+    .kbd-key.space {
+      flex: 3.6;
+      font-size: 13px;
+    }
+
+    .kbd-key.send {
+      flex: 1.7;
+      background: var(--primary);
+      color: var(--primary-text);
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+    }
+
+    /* Modals & Overlays */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      place-items: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.show {
+      display: grid;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 460px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-card h2 {
+      margin: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-group label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .modal-card input[type="text"],
+    .modal-card input[type="password"],
+    .modal-card input[type="email"],
+    .modal-card input[type="number"],
+    .modal-card textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--pill);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .modal-card input.ltr {
+      direction: ltr;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--pill);
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .btn-primary, .btn-secondary {
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-text);
+    }
+
+    .btn-secondary {
+      background: var(--pill);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* Auth Gate & Maintenance Overlay */
+    .fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 108%, rgba(26, 58, 143, 0.45), transparent 60%),
+        var(--bg);
+      display: none;
+      place-items: center;
+      padding: 24px;
+      z-index: 60;
+      text-align: center;
+    }
+
+    .fullscreen-overlay.show {
+      display: grid;
+    }
+
+    .overlay-box {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Image Zoom Modal */
+    .zoom-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      display: none;
+      place-items: center;
+      padding: 16px;
+      z-index: 70;
+    }
+
+    .zoom-backdrop.show {
+      display: grid;
+    }
+
+    .zoom-backdrop img {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Screen (from AuthScreen.kt) -->
+  <div class="fullscreen-overlay" id="authOverlay">
+    <div class="overlay-box">
+      <svg class="star-glyph" viewBox="0 0 100 100" aria-hidden="true">
+        <defs>
+          <linearGradient id="authStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#EA4335"/>
+            <stop offset="35%" stop-color="#FBBC05"/>
+            <stop offset="68%" stop-color="#34A853"/>
+            <stop offset="100%" stop-color="#4285F4"/>
+          </linearGradient>
+        </defs>
+        <path d="M50 5 C53 38 62 47 95 50 C62 53 53 62 50 95 C47 62 38 53 5 50 C38 47 47 38 50 5 Z" fill="url(#authStarGrad)"/>
+      </svg>
+      <h1 style="margin:0; font-size:25px;">أهلاً بك في سؤال وجواب</h1>
+      <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.6;">
+        سجّل الدخول لحفظ محادثاتك وتفضيلاتك محلياً على جهازك
+      </p>
+      <div style="width:100%; display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+        <input type="text" id="authNameInput" placeholder="الاسم الظاهر (مثال: ذوالفقار)" style="padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:var(--pill); color:var(--text); font-family:inherit; font-size:14px;" />
+        <input type="email" id="authEmailInput" placeholder="البريد الإلكتروني (اختياري)" dir="ltr" style="padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:var(--pill); color:var(--text); font-family:inherit; font-size:14px;" />
+        <button class="btn-primary" id="authSubmitBtn" style="height:48px; border-radius:24px; font-size:15px;">متابعة الدخول ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance Screen (from OwnerAppConfig) -->
+  <div class="fullscreen-overlay" id="maintenanceOverlay">
+    <div class="overlay-box">
+      <div style="font-size:46px;">🛠️</div>
+      <h2 style="margin:0;">التطبيق في وضع الصيانة</h2>
+      <p id="maintenanceText" style="margin:0; color:var(--muted); line-height:1.6;">يرجى المحاولة لاحقاً.</p>
+      <button class="btn-secondary" id="ownerBypassBtn" style="margin-top:8px;">دخول المالك 👑</button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="app">
+    <div class="announcement-bar" id="announcementBar"></div>
+
+    <header class="topbar">
+      <div class="brand-pill">
+        <span>✨ سؤال وجواب</span>
+        <span class="owner-badge" id="ownerBadge">👑 المالك</span>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" id="ownerPanelBtn" title="لوحة تحكم المالك" style="display:none;">👑</button>
+        <button class="icon-btn" id="themeBtn" title="تبديل المظهر">🌙</button>
+        <button class="icon-btn" id="newChatBtn" title="محادثة جديدة">➕</button>
+        <button class="icon-btn" id="settingsBtn" title="الإعدادات والمفتاح">⚙️</button>
+      </div>
+    </header>
+
+    <main class="chat-container" id="chatScroll">
+      <div class="chat-inner" id="chatList">
+        <div class="hero" id="heroBox">
+          <svg class="star-glyph" viewBox="0 0 100 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#EA4335"/>
+                <stop offset="35%" stop-color="#FBBC05"/>
+                <stop offset="68%" stop-color="#34A853"/>
+                <stop offset="100%" stop-color="#4285F4"/>
+              </linearGradient>
+            </defs>
+            <path d="M50 5 C53 38 62 47 95 50 C62 53 53 62 50 95 C47 62 38 53 5 50 C38 47 47 38 50 5 Z" fill="url(#starGrad)"/>
+          </svg>
+          <h1 id="heroGreeting">الكلمة لك، أهلاً بك</h1>
+          <p>اسأل أي سؤال، أرفق صورة لتحليلها، أو اطلب أكواد برمجية بالعربية ✨</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="dock-wrap">
+      <div class="attach-preview" id="attachPreview">
+        <img id="attachImg" alt="صورة مرفقة" />
+        <span style="flex:1; font-size:13px; color:var(--accent);">صورة مرفقة جاهزة للتحليل</span>
+        <button class="icon-btn" id="clearAttachBtn" title="إزالة">✕</button>
+      </div>
+
+      <div class="input-pill">
+        <input type="file" id="imageFileInput" accept="image/*" hidden />
+        <button class="icon-btn" id="pickImageBtn" title="إرفاق صورة">🖼️</button>
+        <button class="icon-btn" id="kbdToggleBtn" title="الكيبورد العربي">⌨️</button>
+        <textarea id="questionInput" rows="1" placeholder="اسألني أي شيء..."></textarea>
+        <button class="send-btn" id="sendBtn" title="إرسال">➤</button>
+      </div>
+
+      <div class="kbd" id="arabicKbd"></div>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-card">
+      <h2>
+        <span>⚙️ الإعدادات والحساب</span>
+        <button class="icon-btn" id="closeSettingsBtn">✕</button>
+      </h2>
+      <div class="field-group">
+        <label>مفتاح Gemini API (يُحفظ محلياً على جهازك)</label>
+        <input type="password" id="apiKeyInput" class="ltr" placeholder="AIza..." />
+      </div>
+      <div class="field-group">
+        <label>الاسم الظاهر</label>
+        <input type="text" id="profileNameInput" placeholder="اسمك" />
+      </div>
+      <div class="field-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="profileEmailInput" class="ltr" placeholder="example@gmail.com" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="logoutBtn">تبديل الحساب</button>
+        <button class="btn-primary" id="saveSettingsBtn">حفظ الإعدادات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner Control Sheet Modal (from OwnerControlSheet.kt) -->
+  <div class="modal-backdrop" id="ownerModal">
+    <div class="modal-card">
+      <h2>
+        <span style="color:var(--gold);">👑 لوحة تحكم المالك</span>
+        <button class="icon-btn" id="closeOwnerBtn">✕</button>
+      </h2>
+      <div class="field-group">
+        <label>إعلان عام يظهر أعلى التطبيق</label>
+        <input type="text" id="cfgAnnouncement" maxlength="400" placeholder="أهلاً بالجميع في التحديث الجديد ✨" />
+      </div>
+      <div class="field-group">
+        <label>توجيه مخصص للمساعد الذكي (Owner Directive)</label>
+        <textarea id="cfgDirective" rows="3" maxlength="1200" placeholder="مثال: أجب بإيجاز ووضوح وبالعربية الفصحى..."></textarea>
+      </div>
+      <div class="switch-row">
+        <span>وضع الصيانة (إيقاف الوصول لغير المالك)</span>
+        <input type="checkbox" id="cfgMaintenance" style="width:18px; height:18px;" />
+      </div>
+      <div class="field-group">
+        <label>رسالة وضع الصيانة</label>
+        <input type="text" id="cfgMaintenanceMsg" maxlength="300" placeholder="التطبيق تحت الصيانة حالياً." />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="clearAllDataBtn">مسح السجل المحلي</button>
+        <button class="btn-primary" id="saveOwnerCfgBtn">حفظ الأوامر</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Image Dialog (from FullscreenImageDialog) -->
+  <div class="zoom-backdrop" id="zoomModal">
+    <img id="zoomImg" alt="معاينة الصورة" />
+  </div>
+
+  <script>
+    const OWNER_EMAIL = 'fqore2012@gmail.com';
+    const BASE_SYSTEM_INSTRUCTION = `أنت مساعد ذكي ودود ولطيف جداً تتحدث باللغة العربية الواضحة والجميلة.
+استخدم الإيموجيات المناسبة بشكل لطيف ومتوازن في ردودك دون وضع إيموجيات داخل كتل الأكواد.
+ضع أي كود برمجي داخل كتل مثل \`\`\`python أو \`\`\`kotlin مع شرح مبسط وودود.`;
+
+    const KEY_STORAGE = 'qa_gemini_api_key';
+    const CHAT_STORAGE = 'qa_chat_history_v1';
+    const THEME_STORAGE = 'qa_dark_theme_v1';
+    const USER_STORAGE = 'qa_user_profile_v1';
+    const CONFIG_STORAGE = 'qa_owner_config_v1';
+
+    let userProfile = JSON.parse(localStorage.getItem(USER_STORAGE) || 'null');
+    let appConfig = JSON.parse(localStorage.getItem(CONFIG_STORAGE) || JSON.stringify({
+      announcement: '',
+      ownerDirective: '',
+      maintenanceMode: false,
+      maintenanceMessage: 'التطبيق تحت الصيانة حالياً.'
+    }));
+    let messages = JSON.parse(localStorage.getItem(CHAT_STORAGE) || '[]');
+    let attachedBase64 = null;
+    let attachedMime = 'image/jpeg';
+    let isBusy = false;
+    let kbdLayer = 'LETTERS';
+
+    const chatList = document.getElementById('chatList');
+    const chatScroll = document.getElementById('chatScroll');
+    const heroBox = document.getElementById('heroBox');
+    const heroGreeting = document.getElementById('heroGreeting');
+    const questionInput = document.getElementById('questionInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const imageFileInput = document.getElementById('imageFileInput');
+    const attachPreview = document.getElementById('attachPreview');
+    const attachImg = document.getElementById('attachImg');
+    const settingsModal = document.getElementById('settingsModal');
+    const ownerModal = document.getElementById('ownerModal');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const arabicKbd = document.getElementById('arabicKbd');
+    const themeBtn = document.getElementById('themeBtn');
+    const authOverlay = document.getElementById('authOverlay');
+    const maintenanceOverlay = document.getElementById('maintenanceOverlay');
+    const announcementBar = document.getElementById('announcementBar');
+    const ownerBadge = document.getElementById('ownerBadge');
+    const ownerPanelBtn = document.getElementById('ownerPanelBtn');
+    const zoomModal = document.getElementById('zoomModal');
+    const zoomImg = document.getElementById('zoomImg');
+
+    function isOwner() {
+      return userProfile && (userProfile.email || '').trim().toLowerCase() === OWNER_EMAIL;
+    }
+
+    function applyStateUI() {
+      if (!userProfile) {
+        authOverlay.classList.add('show');
+        return;
+      }
+      authOverlay.classList.remove('show');
+      heroGreeting.textContent = userProfile.displayName
+        ? `الكلمة لك يا ${userProfile.displayName}، أهلاً بك`
+        : 'الكلمة لك، أهلاً بك';
+
+      const owner = isOwner();
+      ownerBadge.classList.toggle('show', owner);
+      ownerPanelBtn.style.display = owner ? 'grid' : 'none';
+
+      if (appConfig.announcement && appConfig.announcement.trim()) {
+        announcementBar.textContent = `📢 ${appConfig.announcement.trim()}`;
+        announcementBar.classList.add('show');
+      } else {
+        announcementBar.classList.remove('show');
+      }
+
+      if (appConfig.maintenanceMode && !owner) {
+        document.getElementById('maintenanceText').textContent =
+          appConfig.maintenanceMessage || 'التطبيق تحت الصيانة حالياً.';
+        maintenanceOverlay.classList.add('show');
+      } else {
+        maintenanceOverlay.classList.remove('show');
+      }
+    }
+
+    // Auth flow
+    document.getElementById('authSubmitBtn').onclick = () => {
+      const name = document.getElementById('authNameInput').value.trim() || 'مستخدم';
+      const email = document.getElementById('authEmailInput').value.trim();
+      userProfile = { displayName: name, email };
+      localStorage.setItem(USER_STORAGE, JSON.stringify(userProfile));
+      applyStateUI();
+    };
+
+    document.getElementById('ownerBypassBtn').onclick = () => {
+      maintenanceOverlay.classList.remove('show');
+      settingsModal.classList.add('show');
+    };
+
+    // Theme
+    if (localStorage.getItem(THEME_STORAGE) === 'light') {
+      document.body.classList.add('light');
+      themeBtn.textContent = '☀️';
+    }
+
+    themeBtn.onclick = () => {
+      const isLight = document.body.classList.toggle('light');
+      themeBtn.textContent = isLight ? '☀️' : '🌙';
+      localStorage.setItem(THEME_STORAGE, isLight ? 'light' : 'dark');
+    };
+
+    document.getElementById('newChatBtn').onclick = () => {
+      messages = [];
+      localStorage.removeItem(CHAT_STORAGE);
+      renderMessages();
+    };
+
+    // Settings Modal
+    document.getElementById('settingsBtn').onclick = () => {
+      apiKeyInput.value = localStorage.getItem(KEY_STORAGE) || '';
+      document.getElementById('profileNameInput').value = userProfile?.displayName || '';
+      document.getElementById('profileEmailInput').value = userProfile?.email || '';
+      settingsModal.classList.add('show');
+    };
+    document.getElementById('closeSettingsBtn').onclick = () => settingsModal.classList.remove('show');
+    document.getElementById('logoutBtn').onclick = () => {
+      localStorage.removeItem(USER_STORAGE);
+      userProfile = null;
+      settingsModal.classList.remove('show');
+      applyStateUI();
+    };
+    document.getElementById('saveSettingsBtn').onclick = () => {
+      localStorage.setItem(KEY_STORAGE, apiKeyInput.value.trim());
+      userProfile = {
+        displayName: document.getElementById('profileNameInput').value.trim() || 'مستخدم',
+        email: document.getElementById('profileEmailInput').value.trim()
+      };
+      localStorage.setItem(USER_STORAGE, JSON.stringify(userProfile));
+      settingsModal.classList.remove('show');
+      applyStateUI();
+    };
+
+    // Owner Control Sheet
+    ownerPanelBtn.onclick = () => {
+      document.getElementById('cfgAnnouncement').value = appConfig.announcement || '';
+      document.getElementById('cfgDirective').value = appConfig.ownerDirective || '';
+      document.getElementById('cfgMaintenance').checked = !!appConfig.maintenanceMode;
+      document.getElementById('cfgMaintenanceMsg').value = appConfig.maintenanceMessage || '';
+      ownerModal.classList.add('show');
+    };
+    document.getElementById('closeOwnerBtn').onclick = () => ownerModal.classList.remove('show');
+    document.getElementById('saveOwnerCfgBtn').onclick = () => {
+      appConfig = {
+        announcement: document.getElementById('cfgAnnouncement').value.trim(),
+        ownerDirective: document.getElementById('cfgDirective').value.trim(),
+        maintenanceMode: document.getElementById('cfgMaintenance').checked,
+        maintenanceMessage: document.getElementById('cfgMaintenanceMsg').value.trim() || 'التطبيق تحت الصيانة حالياً.'
+      };
+      localStorage.setItem(CONFIG_STORAGE, JSON.stringify(appConfig));
+      ownerModal.classList.remove('show');
+      applyStateUI();
+    };
+    document.getElementById('clearAllDataBtn').onclick = () => {
+      messages = [];
+      localStorage.removeItem(CHAT_STORAGE);
+      renderMessages();
+      ownerModal.classList.remove('show');
+    };
+
+    // Image Attachment & Zoom
+    document.getElementById('pickImageBtn').onclick = () => imageFileInput.click();
+    document.getElementById('clearAttachBtn').onclick = () => {
+      attachedBase64 = null;
+      imageFileInput.value = '';
+      attachPreview.classList.remove('show');
+    };
+    zoomModal.onclick = () => zoomModal.classList.remove('show');
+
+    imageFileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      attachedMime = file.type || 'image/jpeg';
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        attachedBase64 = dataUrl.split(',')[1];
+        attachImg.src = dataUrl;
+        attachPreview.classList.add('show');
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Message Formatting (Matched to FormattedAssistantText.kt)
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function formatAssistantHtml(text) {
+      const regex = /```([a-zA-Z0-9_+-]*)
+?([\s\S]*?)```/g;
+      let last = 0;
+      let html = '';
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index > last) {
+          const plain = text.slice(last, match.index).trim();
+          if (plain) html += `<div>${escapeHtml(plain)}</div>`;
+        }
+        const lang = (match[1] || 'CODE').toUpperCase();
+        const code = match[2].trimEnd();
+        const encoded = encodeURIComponent(code);
+        html += `
+          <div class="code-card">
+            <div class="code-head">
+              <span>${escapeHtml(lang)}</span>
+              <button onclick="copyText(decodeURIComponent('${encoded}'), this)">نسخ الكود</button>
+            </div>
+            <pre>${escapeHtml(code)}</pre>
+          </div>`;
+        last = regex.lastIndex;
+      }
+      if (last < text.length) {
+        const tail = text.slice(last).trim();
+        if (tail) html += `<div>${escapeHtml(tail)}</div>`;
+      }
+      return html || escapeHtml(text);
+    }
+
+    window.copyText = (txt, btn) => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt);
+      }
+      if (btn) {
+        const old = btn.textContent;
+        btn.textContent = 'تم النسخ ✓';
+        setTimeout(() => { btn.textContent = old; }, 1400);
+      }
+    };
+
+    function renderMessages(thinkingText = null, errorText = null) {
+      chatList.innerHTML = '';
+      if (messages.length === 0 && !thinkingText && !errorText) {
+        chatList.appendChild(heroBox);
+        return;
+      }
+
+      messages.forEach((m) => {
+        if (m.role === 'user') {
+          const row = document.createElement('div');
+          row.className = 'msg-user-row';
+          const bubble = document.createElement('div');
+          bubble.className = 'msg-user';
+          if (m.imageDataUrl) {
+            const img = document.createElement('img');
+            img.src = m.imageDataUrl;
+            img.onclick = () => {
+              zoomImg.src = m.imageDataUrl;
+              zoomModal.classList.add('show');
+            };
+            bubble.appendChild(img);
+          }
+          const span = document.createElement('span');
+          span.textContent = m.text;
+          bubble.appendChild(span);
+          row.appendChild(bubble);
+          chatList.appendChild(row);
+        } else {
+          const card = document.createElement('div');
+          card.className = 'msg-ai';
+          card.innerHTML = `
+            <div class="msg-ai-head">
+              <div class="msg-ai-brand"><span>✨</span><span>المساعد</span></div>
+              <button class="copy-mini">نسخ النص</button>
+            </div>
+            <div class="msg-ai-body">${formatAssistantHtml(m.text)}</div>
+          `;
+          const copyBtn = card.querySelector('.copy-mini');
+          copyBtn.onclick = () => copyText(m.text, copyBtn);
+          chatList.appendChild(card);
+        }
+      });
+
+      if (thinkingText) {
+        const t = document.createElement('div');
+        t.className = 'thinking';
+        t.textContent = thinkingText;
+        chatList.appendChild(t);
+      }
+
+      if (errorText) {
+        const err = document.createElement('div');
+        err.className = 'error-box';
+        err.textContent = errorText;
+        chatList.appendChild(err);
+      }
+
+      chatScroll.scrollTop = chatScroll.scrollHeight;
+    }
+
+    async function sendMessage() {
+      if (isBusy) return;
+      const text = questionInput.value.trim();
+      if (!text && !attachedBase64) return;
+
+      const apiKey = (localStorage.getItem(KEY_STORAGE) || '').trim();
+      if (!apiKey) {
+        settingsModal.classList.add('show');
+        return;
+      }
+
+      const promptText = text || 'اشرح محتوى هذه الصورة بالتفصيل.';
+      const imgPayload = attachedBase64;
+      const imgMime = attachedMime;
+      const previewUrl = imgPayload ? attachImg.src : null;
+
+      messages.push({ role: 'user', text: promptText, imageDataUrl: previewUrl });
+      localStorage.setItem(CHAT_STORAGE, JSON.stringify(messages.slice(-25)));
+
+      questionInput.value = '';
+      questionInput.style.height = 'auto';
+      attachedBase64 = null;
+      imageFileInput.value = '';
+      attachPreview.classList.remove('show');
+
+      isBusy = true;
+      sendBtn.disabled = true;
+      renderMessages('✨ أفكر في إجابتك...');
+
+      try {
+        const contents = messages.slice(-12).map((m, idx, arr) => {
+          const parts = [{ text: m.text }];
+          if (idx === arr.length - 1 && imgPayload) {
+            parts.push({ inline_data: { mime_type: imgMime, data: imgPayload } });
+          }
+          return {
+            role: m.role === 'user' ? 'user' : 'model',
+            parts
+          };
+        });
+
+        const directive = appConfig.ownerDirective
+          ? `
+
+تعليمات إضافية من المالك:
+${appConfig.ownerDirective}`
+          : '';
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: BASE_SYSTEM_INSTRUCTION + directive }]
+              },
+              contents
+            })
+          }
+        );
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data?.error?.message || `خطأ في الاتصال (${response.status})`);
+        }
+
+        const reply =
+          data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('')?.trim() ||
+          'عذراً، لم أتمكن من توليد إجابة حالياً.';
+
+        messages.push({ role: 'assistant', text: reply });
+        localStorage.setItem(CHAT_STORAGE, JSON.stringify(messages.slice(-25)));
+        renderMessages();
+      } catch (err) {
+        renderMessages(null, `حدث خطأ: ${err.message}`);
+      } finally {
+        isBusy = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.onclick = sendMessage;
+    questionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    questionInput.addEventListener('input', () => {
+      questionInput.style.height = 'auto';
+      questionInput.style.height = Math.min(questionInput.scrollHeight, 120) + 'px';
+    });
+
+    // Built-in Arabic Keyboard (Exact layout from ArabicKeyboardPanel.kt)
+    const LETTERS_ROW_1 = ["ض", "ص", "ث", "ق", "ف", "غ", "ع", "ه", "خ", "ح", "ج", "د"];
+    const LETTERS_ROW_2 = ["ش", "س", "ي", "ب", "ل", "ا", "ت", "ن", "م", "ك", "ط"];
+    const LETTERS_ROW_3 = ["ئ", "ء", "ؤ", "ر", "لا", "ى", "ة", "و", "ز", "ظ"];
+
+    const EXTRAS_ROW_1 = ["أ", "إ", "آ", "ذ", "لأ", "لإ", "لآ", "،", "؛", "؟", "!"];
+    const EXTRAS_ROW_2 = ["َ", "ُ", "ِ", "ً", "ٌ", "ٍ", "ّ", "ْ", "ـ", ".", ":"];
+    const EXTRAS_ROW_3 = ["(", ")", "«", "»", "-", "/", "%", "×", "÷", "="];
+
+    const NUMBERS_ROW_1 = ["١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩", "٠"];
+    const NUMBERS_ROW_2 = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+    const NUMBERS_ROW_3 = ["،", "؛", "؟", "!", ".", ":", "-", "/", "(", ")"];
+
+    function insertAtCursor(str) {
+      const start = questionInput.selectionStart ?? questionInput.value.length;
+      const end = questionInput.selectionEnd ?? questionInput.value.length;
+      const val = questionInput.value;
+      questionInput.value = val.slice(0, start) + str + val.slice(end);
+      const pos = start + str.length;
+      questionInput.setSelectionRange(pos, pos);
+      questionInput.dispatchEvent(new Event('input'));
+    }
+
+    function backspaceAtCursor() {
+      const start = questionInput.selectionStart ?? questionInput.value.length;
+      const end = questionInput.selectionEnd ?? questionInput.value.length;
+      const val = questionInput.value;
+      if (start !== end) {
+        questionInput.value = val.slice(0, start) + val.slice(end);
+        questionInput.setSelectionRange(start, start);
+      } else if (start > 0) {
+        questionInput.value = val.slice(0, start - 1) + val.slice(end);
+        questionInput.setSelectionRange(start - 1, start - 1);
+      }
+      questionInput.dispatchEvent(new Event('input'));
+    }
+
+    function makeKey(label, cls, onClick) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'kbd-key' + (cls ? ' ' + cls : '');
+      btn.textContent = label;
+      btn.onclick = onClick;
+      return btn;
+    }
+
+    function renderKeyboard() {
+      arabicKbd.innerHTML = '';
+
+      const makeRow = (keys, returnToLetters = false) => {
+        const row = document.createElement('div');
+        row.className = 'kbd-row';
+        keys.forEach((k) => {
+          row.appendChild(makeKey(k, '', () => {
+            insertAtCursor(k);
+            if (returnToLetters) {
+              kbdLayer = 'LETTERS';
+              renderKeyboard();
+            }
+          }));
+        });
+        return row;
+      };
+
+      if (kbdLayer === 'LETTERS') {
+        arabicKbd.appendChild(makeRow(LETTERS_ROW_1));
+        arabicKbd.appendChild(makeRow(LETTERS_ROW_2));
+        const r3 = document.createElement('div');
+        r3.className = 'kbd-row';
+        r3.appendChild(makeKey('⇧', 'action', () => { kbdLayer = 'HAMZA_EXTRAS'; renderKeyboard(); }));
+        LETTERS_ROW_3.forEach((k) => r3.appendChild(makeKey(k, '', () => insertAtCursor(k))));
+        r3.appendChild(makeKey('⌫', 'action', backspaceAtCursor));
+        arabicKbd.appendChild(r3);
+      } else if (kbdLayer === 'HAMZA_EXTRAS') {
+        arabicKbd.appendChild(makeRow(EXTRAS_ROW_1, true));
+        arabicKbd.appendChild(makeRow(EXTRAS_ROW_2, true));
+        const r3 = document.createElement('div');
+        r3.className = 'kbd-row';
+        r3.appendChild(makeKey('⇧', 'action active', () => { kbdLayer = 'LETTERS'; renderKeyboard(); }));
+        EXTRAS_ROW_3.forEach((k) => r3.appendChild(makeKey(k, '', () => {
+          insertAtCursor(k);
+          kbdLayer = 'LETTERS';
+          renderKeyboard();
+        })));
+        r3.appendChild(makeKey('⌫', 'action', backspaceAtCursor));
+        arabicKbd.appendChild(r3);
+      } else {
+        arabicKbd.appendChild(makeRow(NUMBERS_ROW_1));
+        arabicKbd.appendChild(makeRow(NUMBERS_ROW_2));
+        const r3 = document.createElement('div');
+        r3.className = 'kbd-row';
+        r3.appendChild(makeKey('أ ب', 'action', () => { kbdLayer = 'LETTERS'; renderKeyboard(); }));
+        NUMBERS_ROW_3.forEach((k) => r3.appendChild(makeKey(k, '', () => insertAtCursor(k))));
+        r3.appendChild(makeKey('⌫', 'action', backspaceAtCursor));
+        arabicKbd.appendChild(r3);
+      }
+
+      // Bottom row
+      const r4 = document.createElement('div');
+      r4.className = 'kbd-row';
+      r4.appendChild(makeKey(
+        kbdLayer === 'NUMBERS' ? 'عربي' : '١٢٣',
+        kbdLayer === 'NUMBERS' ? 'action active' : 'action',
+        () => {
+          kbdLayer = kbdLayer === 'NUMBERS' ? 'LETTERS' : 'NUMBERS';
+          renderKeyboard();
+        }
+      ));
+      r4.appendChild(makeKey('ذ', 'sub', () => insertAtCursor('ذ')));
+      r4.appendChild(makeKey('،', 'sub', () => insertAtCursor('، ')));
+      r4.appendChild(makeKey('مسافة', 'space', () => insertAtCursor(' ')));
+      r4.appendChild(makeKey('؟', 'sub', () => insertAtCursor('؟')));
+      r4.appendChild(makeKey('إرسال ➤', 'send', sendMessage));
+      arabicKbd.appendChild(r4);
+    }
+
+    document.getElementById('kbdToggleBtn').onclick = () => {
+      arabicKbd.classList.toggle('show');
+    };
+
+    renderKeyboard();
+    applyStateUI();
+    renderMessages();
+  </script>
+</body>
+</html>
